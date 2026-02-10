@@ -75,8 +75,26 @@ def local_css():
 
 local_css()
 
-# Initialize OpenAI Client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Sidebar for API Key
+with st.sidebar:
+    st.markdown("<h2 style='color: white;'>Settings</h2>", unsafe_allow_html=True)
+    api_key_input = st.text_input("OpenAI API Key", type="password", help="Enter your OpenAI API key here if not set in .env")
+    
+    if api_key_input:
+        os.environ["OPENAI_API_KEY"] = api_key_input
+
+# Initialize OpenAI Client safely
+api_key = os.getenv("OPENAI_API_KEY")
+
+if not api_key:
+    st.warning("Please enter your OpenAI API key in the sidebar or set it in a .env file to start chatting.")
+    st.stop()
+
+try:
+    client = OpenAI(api_key=api_key)
+except Exception as e:
+    st.error(f"Failed to initialize OpenAI client: {str(e)}")
+    st.stop()
 
 # Application Title
 st.markdown("<h1 style='text-align: center; color: white;'>AI Assistant</h1>", unsafe_allow_html=True)
